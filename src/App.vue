@@ -70,6 +70,14 @@ function clickDiv(numberRandom: IColorRandom) {
     }
   }
 }
+function removeObjectInArray(name: string) {
+  if (showResult.value.bool) {
+    return;
+  }
+  addArrayNumber.value = addArrayNumber.value.filter(
+    (item: IColorRandom) => item.name !== name
+  );
+}
 shuffleArray();
 </script>
 
@@ -84,14 +92,14 @@ shuffleArray();
       >
     </h2>
     <span class="mb-2"
-      >Urutran angka warna 
+      >Urutkan angka warna
       <span
         v-for="itemColor in colorsRandom"
         :class="itemColor.color"
         :key="itemColor.color"
         >{{ itemColor.name }}</span
       >
- dengan klik angkanya</span
+      dengan klik angkanya</span
     >
     <span v-if="showResult.bool" class="mb-2">{{ showResult.result }}</span>
     <div class="flex flex-row mb-2">
@@ -108,10 +116,11 @@ shuffleArray();
     <p class="mb-2" v-if="addArrayNumber.length">Answer</p>
     <div class="flex flex-row mb-2" v-if="addArrayNumber.length">
       <div
-        class="mr-2"
+        class="mr-2 cursor-pointer"
         :class="[isActive ? 'text-black' : item.color]"
         :key="item.color"
         v-for="item in addArrayNumber"
+        @click="removeObjectInArray(item.name)"
       >
         {{ item.nbr }}
       </div>
