@@ -40,13 +40,10 @@ function reset() {
   shuffleArray();
 }
 function result() {
-  if (
-    JSON.stringify(addArrayNumber.value) ===
-    JSON.stringify(showNumberRandom.value)
-  ) {
-    showResult.value.result = "Win";
+  if (JSON.stringify(addArrayNumber.value) === JSON.stringify(colorsRandom)) {
+    showResult.value.result = "Menang";
   } else {
-    showResult.value.result = "Lose";
+    showResult.value.result = "Kalah";
   }
   showResult.value.bool = true;
   isActive.value = false;
@@ -113,7 +110,7 @@ shuffleArray();
         {{ item.nbr }}
       </div>
     </div>
-    <p class="mb-2" v-if="addArrayNumber.length">Answer</p>
+    <p class="mb-2" v-if="addArrayNumber.length">Jawaban Anda</p>
     <div class="flex flex-row mb-2" v-if="addArrayNumber.length">
       <div
         class="mr-2 cursor-pointer"
@@ -125,6 +122,22 @@ shuffleArray();
         {{ item.nbr }}
       </div>
     </div>
+    <transition name="no-item-opacity">
+      <div v-if="showResult.bool">
+        <p style="text-align: center">Samakan</p>
+        <div class="flex flex-row mb-2">
+          <div
+            class="mr-2 cursor-pointer"
+            :class="item.color"
+            :key="item.color"
+            v-for="item in colorsRandom"
+            @click="removeObjectInArray(item.name)"
+          >
+            {{ item.nbr }}
+          </div>
+        </div>
+      </div>
+    </transition>
     <div class="flex flex-row">
       <div class="mr-2">
         Waktu: {{ timerSecond == 0 ? timerSecond : timerSecond + "s" }}

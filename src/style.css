@@ -69,3 +69,13 @@
 .cursor-pointer {
   cursor: pointer;
 }
+
+.no-item-opacity-enter-active,
+.no-item-opacity-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.no-item-opacity-enter-from,
+.no-item-opacity-leave-to {
+  opacity: 0;
+}
