@@ -10,9 +10,6 @@ const isActive = ref<boolean>(true);
 const toggleStart = ref<boolean>(false);
 const timerSecond = ref<number>(10);
 const addArrayNumber = ref<IColorRandom[]>([]);
-const computedShowNumberRandom = computed(() => {
-  return shuffleArray();
-});
 
 function play() {
   let id = setInterval(frame, 1000);
@@ -29,12 +26,10 @@ function play() {
   toggleStart.value = true;
 }
 function shuffleArray() {
-  return showNumberRandom.value
+  showNumberRandom.value = showNumberRandom.value
     .map((item: IColorRandom) => ({ item, sort: Math.random() }))
     .sort((a, b) => a.sort - b.sort)
-    .map(({ item }: { item: IColorRandom }) => {
-      return item;
-    });
+    .map(({ item }: { item: IColorRandom }) => item);
 }
 function reset() {
   timerSecond.value = 10;
@@ -75,6 +70,7 @@ function clickDiv(numberRandom: IColorRandom) {
     }
   }
 }
+shuffleArray();
 </script>
 
 <template>
@@ -88,8 +84,14 @@ function clickDiv(numberRandom: IColorRandom) {
       >
     </h2>
     <span class="mb-2"
-      >Urutkan angka warna merah sampai angka warna Ungu dengan klik
-      angkanya</span
+      >Urutran angka warna 
+      <span
+        v-for="itemColor in colorsRandom"
+        :class="itemColor.color"
+        :key="itemColor.color"
+        >{{ itemColor.name }}</span
+      >
+ dengan klik angkanya</span
     >
     <span v-if="showResult.bool" class="mb-2">{{ showResult.result }}</span>
     <div class="flex flex-row mb-2">
@@ -97,7 +99,7 @@ function clickDiv(numberRandom: IColorRandom) {
         class="mr-2 cursor-pointer"
         :class="[isActive ? 'text-black' : item.color]"
         :key="item.color"
-        v-for="item in computedShowNumberRandom"
+        v-for="item in showNumberRandom"
         @click="clickDiv(item)"
       >
         {{ item.nbr }}
