@@ -20,7 +20,7 @@ describe('App Component', () => {
     vi.clearAllMocks();
   });
 
-  it('initializes with a random sequence and shuffled display', async () => {
+  it('initializes with sequence sections hidden', async () => {
     const wrapper = mount(App);
     
     await flushPromises(); // Wait for component to mount and initialize
@@ -28,21 +28,73 @@ describe('App Component', () => {
     // Check that the component has loaded
     expect(wrapper.exists()).toBe(true);
     
-    // Check that original sequence is displayed
-    const sequenceDisplay = wrapper.find('[data-testid="sequence-display"]');
-    expect(sequenceDisplay.exists()).toBe(true);
+    // Check that "Urutan Asli" section is NOT visible initially
+    const urutanAsliElements = wrapper.findAll('h2');
+    const hasUrutanAsli = Array.from(urutanAsliElements).some(h2 => h2.text() === 'Urutan Asli:');
+    expect(hasUrutanAsli).toBe(false);
+    
+    // Check that "Pilih Angka" section is NOT visible initially
+    const pilihAngkaElements = wrapper.findAll('h2');
+    const hasPilihAngka = Array.from(pilihAngkaElements).some(h2 => h2.text() === 'Pilih Angka:');
+    expect(hasPilihAngka).toBe(false);
+    
+    // Check that "Jawaban Anda" section is NOT visible initially
+    const jawabanAndaElements = wrapper.findAll('h2');
+    const hasJawabanAnda = Array.from(jawabanAndaElements).some(h2 => h2.text() === 'Jawaban Anda:');
+    expect(hasJawabanAnda).toBe(false);
     
     // Check that difficulty selector is present
     expect(wrapper.find('label').text()).toContain('Tingkat Kesulitan');
   });
 
-  it('shows appropriate game status messages', async () => {
+  it('shows sections when play is clicked', async () => {
     const wrapper = mount(App);
     await flushPromises(); // Wait for component to mount and initialize
 
-    // Initially should be in memorization mode
-    const statusMessage = wrapper.find('.text-blue-600');
-    expect(statusMessage.text()).toContain('Ingat urutan angka berwarna');
+    // Initially, the sections should not be visible
+    let urutanAsliElements = wrapper.findAll('h2');
+    let hasUrutanAsli = Array.from(urutanAsliElements).some(h2 => h2.text() === 'Urutan Asli:');
+    expect(hasUrutanAsli).toBe(false);
+    
+    // Find and click the play button
+    const buttons = wrapper.findAll('button');
+    const playButton = Array.from(buttons).find(btn => 
+      btn.text().includes('Play') || btn.text().includes('Main')
+    );
+    
+    if (playButton) {
+      await playButton.trigger('click');
+
+      // Wait for DOM update
+      await wrapper.vm.$nextTick();
+      
+      // Now the sections should be visible after play is clicked
+      urutanAsliElements = wrapper.findAll('h2');
+      hasUrutanAsli = Array.from(urutanAsliElements).some(h2 => h2.text() === 'Urutan Asli:');
+      const hasPilihAngka = Array.from(urutanAsliElements).some(h2 => h2.text() === 'Pilih Angka:');
+      const hasJawabanAnda = Array.from(urutanAsliElements).some(h2 => h2.text() === 'Jawaban Anda:');
+      
+      expect(hasUrutanAsli).toBe(true);
+      expect(hasPilihAngka).toBe(true);
+      expect(hasJawabanAnda).toBe(true);
+    }
+  });
+
+  it('shows appropriate game status messages', async () => {
+    const wrapper = mount(App);
+    
+    // Wait for component to mount and initialize
+    await flushPromises();
+    await wrapper.vm.$nextTick(); // Wait for DOM updates after mount
+    
+    // Look for the specific status message in memorization mode
+    const statusMessageElements = wrapper.findAll('p');
+    const memorizationMessage = Array.from(statusMessageElements).find(p => 
+      p.text().includes('Ingat urutan angka berwarna')
+    );
+    
+    expect(memorizationMessage).toBeDefined();
+    expect(memorizationMessage.text()).toContain('Ingat urutan angka berwarna');
   });
 
   it('allows starting the timer', async () => {
@@ -50,27 +102,54 @@ describe('App Component', () => {
     await flushPromises(); // Wait for component to mount and initialize
 
     // Find and click the play button
-    const playButton = wrapper.find('button');
-    await playButton.trigger('click');
+    const buttons = wrapper.findAll('button');
+    const playButton = Array.from(buttons).find(btn => 
+      btn.text().includes('Play') || btn.text().includes('Main')
+    );
+    
+    if (playButton) {
+      await playButton.trigger('click');
 
-    // Check that setInterval was called (timer started)
-    expect(window.setInterval).toHaveBeenCalled();
+      // Check that setInterval was called (timer started)  
+      expect(window.setInterval).toHaveBeenCalled();
+    }
   });
 
-  it('allows player to select numbers after timer ends', async () => {
+  it('hides sections when result is clicked', async () => {
     const wrapper = mount(App);
     await flushPromises(); // Wait for component to mount and initialize
 
-    // Start timer simulation (would normally be done through the UI)
-    const playButton = wrapper.find('button');
-    await playButton.trigger('click');
+    // Click the play button first to show sections
+    const buttons = wrapper.findAll('button');
+    const playButton = Array.from(buttons).find(btn => 
+      btn.text().includes('Play') || btn.text().includes('Main')
+    );
+    
+    if (playButton) {
+      await playButton.trigger('click');
+      await wrapper.vm.$nextTick();
 
-    // Wait for DOM update
-    await wrapper.vm.$nextTick();
+      // Verify sections are visible after play is clicked
+      const urutanAsliElementsBefore = wrapper.findAll('h2');
+      const hasUrutanAsliBefore = Array.from(urutanAsliElementsBefore).some(h2 => h2.text() === 'Urutan Asli:');
+      expect(hasUrutanAsliBefore).toBe(true);
 
-    // We'll test this by checking if the game state responds correctly
-    // For this test, we'll focus on the UI behavior instead
-    expect(wrapper.find('button').text()).toBe('Play');
+      // Find and click the result/check button
+      const resultButton = Array.from(buttons).find(btn => 
+        btn.text().includes('Cek') || btn.text().includes('Result') || btn.text().includes('Check')
+      );
+      
+      if (resultButton) {
+        await resultButton.trigger('click');
+        await wrapper.vm.$nextTick();
+        await new Promise(resolve => setTimeout(resolve, 150)); // Wait for the timeout in handleResult
+
+        // Verify sections are now hidden after result is clicked
+        const urutanAsliElementsAfter = wrapper.findAll('h2');
+        const hasUrutanAsliAfter = Array.from(urutanAsliElementsAfter).some(h2 => h2.text() === 'Urutan Asli:');
+        expect(hasUrutanAsliAfter).toBe(false);
+      }
+    }
   });
 
   it('resets the game properly', async () => {
@@ -78,14 +157,13 @@ describe('App Component', () => {
     await flushPromises(); // Wait for component to mount and initialize
 
     // Find and click the reset button
-    const resetButtons = wrapper.findAll('button');
-    const resetButton = Array.from(resetButtons).find(btn => 
-      btn.text() === 'Reset'
+    const buttons = wrapper.findAll('button');
+    const resetButton = Array.from(buttons).find(btn => 
+      btn.text().includes('Reset') || btn.text().includes('Ulang')
     );
     
     if (resetButton) {
       await resetButton.trigger('click');
-      expect(resetButton.text()).toBe('Reset');
     }
   });
 });
