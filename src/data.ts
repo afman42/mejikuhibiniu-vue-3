@@ -3,7 +3,8 @@ export interface IColorRandom {
   name: string;
   nbr: number;
 }
-export const colorsRandom: IColorRandom[] = [
+
+export const createInitialColorsRandom = (): IColorRandom[] => [
   {
     color: "text-red",
     name: "me",

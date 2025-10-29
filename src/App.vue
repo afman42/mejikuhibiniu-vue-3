@@ -1,155 +1,214 @@
 <script setup lang="ts">
-import { colorsRandom, IColorRandom } from "./data";
-import { ref, computed } from "vue";
-const showNumberRandom = ref<IColorRandom[]>(colorsRandom);
-const showResult = ref<{ result: string; bool: boolean }>({
+import { createInitialColorsRandom, IColorRandom } from "./data";
+import { ref, onMounted } from "vue";
+
+// Game state
+const originalSequence = ref<IColorRandom[]>([]);
+const displaySequence = ref<IColorRandom[]>([]);
+const playerSequence = ref<IColorRandom[]>([]);
+const gameResult = ref<{ result: string; bool: boolean }>({
   result: "",
   bool: false,
 });
-const isActive = ref<boolean>(true);
-const toggleStart = ref<boolean>(false);
+const isMemorizing = ref<boolean>(true); // true means player is viewing the original sequence
+const isPlaying = ref<boolean>(false); // true means the game is active (timer running)
 const timerSecond = ref<number>(10);
-const addArrayNumber = ref<IColorRandom[]>([]);
+const timerId = ref<number | null>(null); // Store timer ID to be able to clear it
 
-function play() {
-  let id = setInterval(frame, 1000);
-  function frame() {
-    if (timerSecond.value <= 0) {
-      timerSecond.value = 0;
-      clearInterval(id);
-      isActive.value = true;
-    } else {
-      timerSecond.value--;
-      isActive.value = false;
-    }
-  }
-  toggleStart.value = true;
+// Initialize the game with a new sequence
+function initializeGame() {
+  originalSequence.value = createInitialColorsRandom();
+  displaySequence.value = [...originalSequence.value]; // Copy for shuffling
+  playerSequence.value = [];
+  gameResult.value = { result: "", bool: false };
+  isMemorizing.value = true;
+  isPlaying.value = false;
+  timerSecond.value = 10;
 }
+
+// Shuffle the display sequence
 function shuffleArray() {
-  showNumberRandom.value = showNumberRandom.value
+  displaySequence.value = [...originalSequence.value] // Create a copy to avoid modifying original
     .map((item: IColorRandom) => ({ item, sort: Math.random() }))
     .sort((a, b) => a.sort - b.sort)
     .map(({ item }: { item: IColorRandom }) => item);
 }
-function reset() {
-  timerSecond.value = 10;
-  toggleStart.value = false;
-  addArrayNumber.value = [];
-  isActive.value = true;
-  showResult.value.bool = false;
-  shuffleArray();
-}
-function result() {
-  if (JSON.stringify(addArrayNumber.value) === JSON.stringify(colorsRandom)) {
-    showResult.value.result = "Menang";
-  } else {
-    showResult.value.result = "Kalah";
+
+// Start the game timer
+function play() {
+  isPlaying.value = true;
+  isMemorizing.value = false;
+  
+  // Clear any existing timer
+  if (timerId.value) {
+    clearInterval(timerId.value);
   }
-  showResult.value.bool = true;
-  isActive.value = false;
-}
-function clickDiv(numberRandom: IColorRandom) {
-  if (toggleStart.value) {
-    if (timerSecond.value === 0) {
-      let check = addArrayNumber.value
-        .map((item: IColorRandom) => item.name)
-        .includes(numberRandom.name);
-      if (addArrayNumber.value.length <= showNumberRandom.value.length) {
-        if (check) {
-          return;
-        }
-        addArrayNumber.value.push({
-          color: numberRandom.color,
-          name: numberRandom.name,
-          nbr: numberRandom.nbr,
-        });
+  
+  // Start new timer
+  timerId.value = window.setInterval(frame, 1000);
+  
+  function frame() {
+    if (timerSecond.value <= 0) {
+      timerSecond.value = 0;
+      if (timerId.value) {
+        clearInterval(timerId.value);
+        timerId.value = null;
       }
+      // Don't change isMemorizing here - we want to allow interaction after timer ends
+    } else {
+      timerSecond.value--;
     }
   }
 }
-function removeObjectInArray(name: string) {
-  if (showResult.value.bool) {
-    return;
+
+// Reset the game
+function reset() {
+  if (timerId.value) {
+    clearInterval(timerId.value);
+    timerId.value = null;
   }
-  addArrayNumber.value = addArrayNumber.value.filter(
+  
+  initializeGame();
+  shuffleArray(); // Shuffle the sequence for the new game
+}
+
+// Check player's result
+function result() {
+  // Compare sequences properly - make sure both arrays have the same order and values
+  const isCorrect = originalSequence.value.length === playerSequence.value.length &&
+    originalSequence.value.every((item, index) => 
+      item.name === playerSequence.value[index].name &&
+      item.nbr === playerSequence.value[index].nbr &&
+      item.color === playerSequence.value[index].color
+    );
+  
+  if (isCorrect) {
+    gameResult.value.result = "Menang";
+  } else {
+    gameResult.value.result = "Kalah";
+  }
+  
+  gameResult.value.bool = true;
+  isMemorizing.value = false;
+  
+  // Stop the timer when result is shown
+  if (timerId.value) {
+    clearInterval(timerId.value);
+    timerId.value = null;
+  }
+}
+
+// Handle player clicking on a number
+function clickDiv(numberRandom: IColorRandom) {
+  if (isPlaying.value && timerSecond.value === 0 && !gameResult.value.bool) {
+    // Check if this item is already in the player's sequence
+    const isAlreadySelected = playerSequence.value
+      .some(item => item.name === numberRandom.name);
+    
+    if (!isAlreadySelected && playerSequence.value.length < originalSequence.value.length) {
+      playerSequence.value.push({ ...numberRandom }); // Add a copy of the item
+    }
+  }
+}
+
+// Remove an item from player's sequence
+function removeObjectInArray(name: string) {
+  if (gameResult.value.bool) {
+    return; // Don't allow changes after result is shown
+  }
+  playerSequence.value = playerSequence.value.filter(
     (item: IColorRandom) => item.name !== name
   );
 }
-shuffleArray();
+
+// Initialize the game when component mounts
+onMounted(() => {
+  initializeGame();
+  shuffleArray();
+});
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col justify-center items-center">
     <h2>
       <span
-        v-for="itemColor in colorsRandom"
+        v-for="itemColor in originalSequence"
         :class="itemColor.color"
-        :key="itemColor.color"
+        :key="'original-' + itemColor.name"
         >{{ itemColor.name }}</span
       >
     </h2>
     <span class="mb-2"
       >Urutkan angka warna
       <span
-        v-for="itemColor in colorsRandom"
+        v-for="itemColor in originalSequence"
         :class="itemColor.color"
-        :key="itemColor.color"
+        :key="'original-label-' + itemColor.name"
         >{{ itemColor.name }}</span
       >
       dengan klik angkanya</span
     >
-    <span v-if="showResult.bool" class="mb-2">{{ showResult.result }}</span>
+    <span v-if="gameResult.bool" class="mb-2 text-xl font-bold">{{ gameResult.result }}</span>
     <div class="flex flex-row mb-2">
       <div
-        class="mr-2 cursor-pointer"
-        :class="[isActive ? 'text-black' : item.color]"
-        :key="item.color"
-        v-for="item in showNumberRandom"
+        class="mr-2 cursor-pointer text-2xl font-bold"
+        :class="[isMemorizing ? 'text-black' : item.color]"
+        :key="'display-' + item.name"
+        v-for="item in displaySequence"
         @click="clickDiv(item)"
       >
         {{ item.nbr }}
       </div>
     </div>
-    <p class="mb-2" v-if="addArrayNumber.length">Jawaban Anda</p>
-    <div class="flex flex-row mb-2" v-if="addArrayNumber.length">
+    <p class="mb-2" v-if="playerSequence.length">Jawaban Anda</p>
+    <div class="flex flex-row mb-2" v-if="playerSequence.length">
       <div
-        class="mr-2 cursor-pointer"
-        :class="[isActive ? 'text-black' : item.color]"
-        :key="item.color"
-        v-for="item in addArrayNumber"
+        class="mr-2 cursor-pointer text-2xl font-bold"
+        :class="[isMemorizing ? 'text-black' : item.color]"
+        :key="'player-' + item.name"
+        v-for="item in playerSequence"
         @click="removeObjectInArray(item.name)"
       >
         {{ item.nbr }}
       </div>
     </div>
     <transition name="no-item-opacity">
-      <div v-if="showResult.bool">
+      <div v-if="gameResult.bool">
         <p style="text-align: center">Samakan</p>
         <div class="flex flex-row mb-2">
           <div
-            class="mr-2 cursor-pointer"
+            class="mr-2"
             :class="item.color"
-            :key="item.color"
-            v-for="item in colorsRandom"
-            @click="removeObjectInArray(item.name)"
+            :key="'result-' + item.name"
+            v-for="item in originalSequence"
           >
             {{ item.nbr }}
           </div>
         </div>
       </div>
     </transition>
-    <div class="flex flex-row">
-      <div class="mr-2">
+    <div class="flex flex-row items-center">
+      <div class="mr-4 text-lg">
         Waktu: {{ timerSecond == 0 ? timerSecond : timerSecond + "s" }}
       </div>
-      <div>
-        <button @click="play" class="mr-2" :disabled="toggleStart">Play</button>
-        <button @click="reset" class="mr-2" :disabled="toggleStart === false">
+      <div class="flex space-x-2">
+        <button 
+          @click="play" 
+          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50" 
+          :disabled="isPlaying"
+        >
+          Play
+        </button>
+        <button 
+          @click="reset" 
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+        >
           Reset
         </button>
         <button
+          v-if="playerSequence.length === originalSequence.length && !gameResult.bool"
           @click="result"
-          v-if="addArrayNumber.length === showNumberRandom.length"
+          class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           Result
         </button>
