@@ -1,5 +1,5 @@
 <template>
-  <div class="sound-controls flex items-center gap-2">
+  <div class="sound-controls flex items-center gap-1 sm:gap-2">
     <button
       @click="toggleSound"
       :aria-label="
@@ -15,7 +15,7 @@
         :icon="
           soundService.getEnabled() ? 'mdi:volume-high' : 'mdi:volume-mute'
         "
-        class="w-6 h-6"
+        class="w-5 h-5 sm:w-6 sm:h-6"
       />
     </button>
 
@@ -27,7 +27,7 @@
       step="0.1"
       :value="soundService.getVolume()"
       @input="setVolume"
-      class="w-20 accent-cyan-500"
+      class="w-16 sm:w-20 accent-cyan-500"
       aria-label="Atur volume suara"
     />
   </div>

@@ -1,10 +1,10 @@
 <template>
-  <div class="number-grid flex flex-wrap justify-center gap-2 mb-4" role="grid" aria-label="Pilihan angka berwarna">
+  <div class="number-grid flex flex-wrap justify-center gap-1 sm:gap-2 mb-4" role="grid" aria-label="Pilihan angka berwarna">
     <div
       v-for="item in numbers"
       :key="item.name"
       :class="[
-        'w-12 h-12 flex items-center justify-center rounded-full text-white font-bold cursor-pointer transition-all duration-300 transform',
+        'w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full text-white font-bold cursor-pointer transition-all duration-300 transform text-sm sm:text-base',
         showOriginalColors && !isSelected(item.name) ? getColorClass(item.color) : 'bg-gray-400',
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95',
         isSelected(item.name) ? `ring-2 ring-cyan-500 ${showOriginalColors ? getOriginalColorClass(item.color) : 'bg-gray-500'}` : ''

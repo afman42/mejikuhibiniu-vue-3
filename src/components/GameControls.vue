@@ -1,15 +1,15 @@
 <template>
-  <div class="game-controls flex flex-col items-center gap-4 mb-4">
-    <div class="timer text-xl font-bold bg-gray-100 py-2 px-4 rounded-lg">
+  <div class="game-controls flex flex-col items-center gap-3 sm:gap-4 mb-4">
+    <div class="timer text-lg sm:text-xl font-bold bg-gray-100 py-2 px-3 sm:px-4 rounded-lg">
       Waktu: {{ timer === 0 ? timer : timer + "s" }}
     </div>
     
-    <div class="button-group flex gap-3 flex-wrap justify-center">
+    <div class="button-group flex flex-col sm:flex-row gap-2 sm:gap-3 flex-wrap justify-center w-full max-w-xs">
       <button 
         @click="onPlay"
         :disabled="isPlaying || gameResult.bool"
         :class="[
-          'py-3 px-6 rounded-lg font-bold transition-all min-w-[100px]',
+          'py-2 px-4 sm:py-3 sm:px-6 rounded-lg font-bold transition-all min-w-[80px] sm:min-w-[100px] text-sm sm:text-base',
           isPlaying || gameResult.bool 
             ? 'bg-gray-400 cursor-not-allowed' 
             : 'bg-blue-500 hover:bg-blue-600 text-white active:bg-blue-700'
@@ -21,7 +21,7 @@
       
       <button 
         @click="onReset"
-        class="py-3 px-6 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-bold transition-all min-w-[100px] active:bg-gray-700"
+        class="py-2 px-4 sm:py-3 sm:px-6 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-bold transition-all min-w-[80px] sm:min-w-[100px] text-sm sm:text-base active:bg-gray-700"
         aria-label="Ulangi permainan"
       >
         Reset
@@ -30,7 +30,7 @@
       <button 
         v-if="showResultButton"
         @click="onResult"
-        class="py-3 px-6 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold transition-all min-w-[100px] active:bg-green-700"
+        class="py-2 px-4 sm:py-3 sm:px-6 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold transition-all min-w-[80px] sm:min-w-[100px] text-sm sm:text-base active:bg-green-700"
         aria-label="Lihat hasil"
       >
         Result

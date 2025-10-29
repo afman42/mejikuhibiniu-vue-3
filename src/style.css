@@ -6,7 +6,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.5;
   color: #1f2937;
 }
@@ -37,6 +37,10 @@ body {
   justify-content: center;
 }
 
+.justify-between {
+  justify-content: space-between;
+}
+
 /* Spacing utilities */
 .mb-2 {
   margin-bottom: 0.5rem;
@@ -50,8 +54,16 @@ body {
   margin-bottom: 1rem;
 }
 
+.mb-5 {
+  margin-bottom: 1.25rem;
+}
+
 .mb-6 {
   margin-bottom: 1.5rem;
+}
+
+.mb-7 {
+  margin-bottom: 1.75rem;
 }
 
 .mb-8 {
@@ -62,12 +74,28 @@ body {
   margin-right: 0.5rem;
 }
 
+.p-2 {
+  padding: 0.5rem;
+}
+
+.p-3 {
+  padding: 0.75rem;
+}
+
 .p-4 {
   padding: 1rem;
 }
 
+.p-5 {
+  padding: 1.25rem;
+}
+
 .p-6 {
   padding: 1.5rem;
+}
+
+.gap-1 {
+  gap: 0.25rem;
 }
 
 .gap-2 {
@@ -89,6 +117,25 @@ body {
 
 .text-left {
   text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 .text-lg {
@@ -169,6 +216,10 @@ body {
   color: #6b7280;
 }
 
+.text-gray-600 {
+  color: #4b5563;
+}
+
 .text-gray-800 {
   color: #1f2937;
 }
@@ -243,7 +294,35 @@ body {
   width: 100%;
 }
 
+.w-8 {
+  width: 2rem;
+}
+
+.w-10 {
+  width: 2.5rem;
+}
+
+.w-12 {
+  width: 3rem;
+}
+
+.h-8 {
+  height: 2rem;
+}
+
+.h-10 {
+  height: 2.5rem;
+}
+
+.h-12 {
+  height: 3rem;
+}
+
 /* Card styles */
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
 .rounded-xl {
   border-radius: 0.75rem;
 }
@@ -257,7 +336,9 @@ body {
 }
 
 .shadow-xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .border {
@@ -272,9 +353,21 @@ body {
   border-color: #e5e7eb;
 }
 
+.border-cyan-100 {
+  border-color: #cffafe;
+}
+
+.border-cyan-200 {
+  border-color: #a5f3fc;
+}
+
 /* Interactive elements */
 .cursor-pointer {
   cursor: pointer;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
 }
 
 .hover\:opacity-90:hover {
@@ -297,12 +390,28 @@ body {
   background-color: #374151;
 }
 
+.hover\:bg-cyan-100:hover {
+  background-color: #cffafe;
+}
+
+.hover\:shadow-md:hover {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.hover\:shadow-cyan-100:hover {
+  box-shadow: 0 4px 6px -1px rgba(223, 242, 255, 0.5);
+}
+
 .transition-all {
   transition: all 0.2s ease;
 }
 
 .transition-colors {
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 /* Button styles */
@@ -318,13 +427,17 @@ body {
   background-color: #22c55e;
 }
 
+.bg-cyan-400 {
+  background-color: #22d3ee;
+}
+
+.bg-cyan-500 {
+  background-color: #06b6d4;
+}
+
 /* Disabled states */
 .opacity-50 {
   opacity: 0.5;
-}
-
-.cursor-not-allowed {
-  cursor: not-allowed;
 }
 
 /* Animation for transitions */
@@ -343,6 +456,10 @@ body {
   background-color: #f9fafb;
 }
 
+.bg-cyan-50 {
+  background-color: #ecfeff;
+}
+
 .bg-indigo-500 {
   background-color: #6366f1;
 }
@@ -353,6 +470,14 @@ body {
 
 .bg-purple-600 {
   background-color: #9333ea;
+}
+
+.bg-green-50 {
+  background-color: #f0fdf4;
+}
+
+.bg-red-50 {
+  background-color: #fef2f2;
 }
 
 .text-indigo-100 {
@@ -379,6 +504,15 @@ body {
   color: #4b5563;
 }
 
+.text-cyan-600 {
+  color: #0891b2;
+}
+
+.text-cyan-700 {
+  color: #0e7490;
+}
+
+/* Utility classes */
 .italic {
   font-style: italic;
 }
@@ -387,9 +521,121 @@ body {
   flex-wrap: wrap;
 }
 
-/* Responsive padding */
-.md\:p-6 {
+/* Responsive utilities */
+.sm\:p-4 {
+  padding: 1rem;
+}
+
+.sm\:p-5 {
+  padding: 1.25rem;
+}
+
+.sm\:p-6 {
   padding: 1.5rem;
+}
+
+.sm\:mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.sm\:mb-4 {
+  margin-bottom: 1rem;
+}
+
+.sm\:mb-5 {
+  margin-bottom: 1.25rem;
+}
+
+.sm\:mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.sm\:mb-7 {
+  margin-bottom: 1.75rem;
+}
+
+.sm\:mb-8 {
+  margin-bottom: 2rem;
+}
+
+.sm\:mt-3 {
+  margin-top: 0.75rem;
+}
+
+.sm\:mt-4 {
+  margin-top: 1rem;
+}
+
+.sm\:gap-2 {
+  gap: 0.5rem;
+}
+
+.sm\:gap-3 {
+  gap: 0.75rem;
+}
+
+.sm\:gap-4 {
+  gap: 1rem;
+}
+
+.sm\:text-base {
+  font-size: 1rem;
+}
+
+.sm\:text-lg {
+  font-size: 1.125rem;
+}
+
+.sm\:text-xl {
+  font-size: 1.25rem;
+}
+
+.sm\:text-2xl {
+  font-size: 1.5rem;
+}
+
+.sm\:text-3xl {
+  font-size: 1.875rem;
+}
+
+.sm\:text-4xl {
+  font-size: 2.25rem;
+}
+
+.sm\:flex-row {
+  flex-direction: row;
+}
+
+.sm\:flex-col {
+  flex-direction: column;
+}
+
+.sm\:text-left {
+  text-align: left;
+}
+
+.sm\:text-right {
+  text-align: right;
+}
+
+.sm\:h-10 {
+  height: 2.5rem;
+}
+
+.sm\:h-12 {
+  height: 3rem;
+}
+
+.sm\:w-10 {
+  width: 2.5rem;
+}
+
+.sm\:w-12 {
+  width: 3rem;
+}
+
+.sm\:min-w-\[100px\] {
+  min-width: 100px;
 }
 
 /* Additional utilities */
@@ -401,34 +647,14 @@ body {
   overflow: hidden;
 }
 
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
 /* Interactive elements */
 .focus\:outline-none:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
-}
-
-.w-10 {
-  width: 2.5rem;
-}
-
-.h-10 {
-  height: 2.5rem;
-}
-
-.w-12 {
-  width: 3rem;
-}
-
-.h-12 {
-  height: 3rem;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.justify-between {
-  justify-content: space-between;
 }
 
 /* Animation */
@@ -442,4 +668,104 @@ body {
 
 .min-w-\[100px\] {
   min-width: 100px;
+}
+
+.min-w-\[80px\] {
+  min-width: 80px;
+}
+
+/* Responsive for max-height */
+.max-h-48 {
+  max-height: 12rem;
+}
+
+.max-h-60 {
+  max-height: 15rem;
+}
+
+/* Ring utilities */
+.ring-1 {
+  box-shadow: 0 0 0 1px currentColor;
+}
+
+.ring-2 {
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+.ring-gray-300 {
+  --tw-ring-color: #d1d5db;
+  box-shadow: 0 0 0 2px #d1d5db;
+}
+
+.ring-cyan-500 {
+  --tw-ring-color: #06b6d4;
+  box-shadow: 0 0 0 2px #06b6d4;
+}
+
+/* Accent color for range inputs */
+.accent-cyan-500 {
+  accent-color: #06b6d4;
+}
+
+/* Additional responsive classes */
+.sm\:inline {
+  display: inline;
+}
+
+.sm\:block {
+  display: block;
+}
+
+.sm\:hidden {
+  display: none;
+}
+
+.sm\:w-auto {
+  width: auto;
+}
+
+.sm\:items-center {
+  align-items: center;
+}
+
+.sm\:items-start {
+  align-items: flex-start;
+}
+
+.sm\:items-end {
+  align-items: flex-end;
+}
+
+.sm\:justify-center {
+  justify-content: center;
+}
+
+.sm\:justify-between {
+  justify-content: space-between;
+}
+
+.sm\:flex-row {
+  flex-direction: row;
+}
+
+.sm\:flex-col {
+  flex-direction: column;
+}
+
+.text-transparent {
+  color: transparent;
+}
+
+.bg-clip-text {
+  background-clip: text;
+}
+
+.sm\:text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.sm\:text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
 }

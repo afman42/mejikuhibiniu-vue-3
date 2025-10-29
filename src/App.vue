@@ -1,35 +1,28 @@
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-blue-50 flex flex-col justify-center items-center p-4 md:p-6"
+    class="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-blue-50 flex flex-col justify-center items-center p-2 sm:p-4"
   >
     <div
       class="w-full max-w-4xl bg-white rounded-2xl shadow-xl border border-cyan-100 overflow-hidden"
     >
       <!-- Header section -->
-      <div class="bg-gradient-to-r from-cyan-400 to-blue-500 p-6">
-        <div class="flex justify-between items-center">
-          <h1 class="text-3xl md:text-4xl font-bold text-black drop-shadow-lg">
+      <div class="bg-gradient-to-r from-cyan-400 to-blue-500 px-4 py-2 sm:p-6">
+        <div
+          class="flex flex-col sm:flex-row justify-between items-center gap-3"
+        >
+          <h1
+            class="text-3xl sm:text-base md:text-4xl font-bold text-black drop-shadow-lg text-center"
+          >
             Mejikuhibiniu
           </h1>
           <SoundControls />
         </div>
-
-        <p
-          class="text-center text-white/90 mt-3 text-lg font-medium drop-shadow"
-        >
-          <span
-            class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-orange-300"
-          >
-            Ingat urutan angka berwarna, lalu susun kembali dalam urutan yang
-            benar
-          </span>
-        </p>
       </div>
 
       <!-- Main content -->
-      <div class="p-6">
+      <div class="px-4 py-2 sm:p-5 md:p-6">
         <!-- Difficulty selector -->
-        <div class="mb-6">
+        <div class="mb-4 sm:mb-6">
           <DifficultySelector
             :selected-difficulty="state.difficulty"
             @difficulty-change="setDifficulty"
@@ -37,32 +30,30 @@
         </div>
 
         <!-- Game status -->
-        <div
-          class="mb-6 text-center py-4 rounded-xl bg-cyan-50 border border-cyan-200 shadow-sm"
-        >
+        <div class="mb-4 sm:mb-6 text-center py-3 sm:py-4 shadow-sm">
           <p
             v-if="state.isMemorizing"
-            class="text-cyan-600 font-semibold text-lg"
+            class="text-cyan-600 font-semibold text-base sm:text-lg"
           >
             🧠 Ingat urutan angka berwarna di atas! Waktu akan mulai ketika kamu
             menekan Play.
           </p>
           <p
             v-else-if="state.isPlaying && state.timerSecond > 0"
-            class="text-green-600 font-semibold text-lg"
+            class="text-green-600 font-semibold text-base sm:text-lg"
           >
             ⏱️ Waktu mulai! Ingat baik-baik. ({{ state.timerSecond }}s)
           </p>
           <p
             v-else-if="state.timerSecond === 0 && !state.gameResult.bool"
-            class="text-amber-600 font-semibold text-lg"
+            class="text-amber-600 font-semibold text-base sm:text-lg"
           >
             ✅ Waktu habis! Sekarang susun kembali angka dalam urutan yang
             benar.
           </p>
           <p
             v-else-if="state.gameResult.bool"
-            class="text-2xl font-bold py-2"
+            class="text-xl sm:text-2xl font-bold py-2"
             :class="
               state.gameResult.result === 'Menang'
                 ? 'text-green-600'
@@ -75,11 +66,20 @@
         </div>
 
         <!-- Original sequence display for memorization -->
-        <div v-if="state.timerSecond > 0 || state.gameResult.bool" class="mb-8">
-          <div class="flex justify-between items-center mb-3">
-            <h2 class="text-xl font-bold text-gray-800">Urutan Asli:</h2>
+        <div
+          v-if="state.timerSecond > 0 || state.gameResult.bool"
+          class="mb-5 sm:mb-7"
+        >
+          <div
+            class="flex flex-col sm:flex-row justify-between items-center mb-2 sm:mb-3 gap-2"
+          >
+            <h2
+              class="text-lg sm:text-xl font-bold text-gray-800 text-center sm:text-left"
+            >
+              Urutan Asli:
+            </h2>
             <div
-              class="text-sm font-medium text-cyan-700 bg-cyan-100 px-3 py-1 rounded-full"
+              class="text-xs sm:text-sm font-medium text-cyan-700 bg-cyan-100 px-2 sm:px-3 py-1 rounded-full"
             >
               {{ state.originalSequence.length }} angka
             </div>
@@ -95,8 +95,10 @@
         </div>
 
         <!-- Shuffled number grid for selection -->
-        <div class="mb-8">
-          <h2 class="text-xl font-bold text-center text-gray-800 mb-3">
+        <div class="mb-5 sm:mb-7">
+          <h2
+            class="text-lg sm:text-xl font-bold text-center text-gray-800 mb-2 sm:mb-3"
+          >
             Pilih Angka:
           </h2>
           <div class="flex justify-center">
@@ -119,8 +121,10 @@
         </div>
 
         <!-- Player's sequence -->
-        <div class="mb-8">
-          <h2 class="text-xl font-bold text-center text-gray-800 mb-3">
+        <div class="mb-5 sm:mb-7">
+          <h2
+            class="text-lg sm:text-xl font-bold text-center text-gray-800 mb-2 sm:mb-3"
+          >
             Jawaban Anda:
           </h2>
           <div class="flex justify-center">
@@ -134,7 +138,7 @@
         </div>
 
         <!-- Game controls -->
-        <div class="mb-8">
+        <div class="mb-5 sm:mb-7">
           <GameControls
             :timer="state.timerSecond"
             :is-playing="state.isPlaying"
