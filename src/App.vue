@@ -67,7 +67,10 @@
 
         <!-- Original sequence display for memorization -->
         <div
-          v-if="state.timerSecond > 0 || state.gameResult.bool"
+          v-if="
+            (state.timerSecond > 0 || state.gameResult.bool) &&
+            showSequenceSections
+          "
           class="mb-5 sm:mb-7"
         >
           <div
@@ -95,7 +98,10 @@
         </div>
 
         <!-- Shuffled number grid for selection -->
-        <div class="mb-5 sm:mb-7">
+        <div
+          class="mb-5 sm:mb-7"
+          v-if="state.isPlaying && showSequenceSections"
+        >
           <h2
             class="text-lg sm:text-xl font-bold text-center text-gray-800 mb-2 sm:mb-3"
           >
@@ -121,7 +127,10 @@
         </div>
 
         <!-- Player's sequence -->
-        <div class="mb-5 sm:mb-7">
+        <div
+          class="mb-5 sm:mb-7"
+          v-if="state.isPlaying && showSequenceSections"
+        >
           <h2
             class="text-lg sm:text-xl font-bold text-center text-gray-800 mb-2 sm:mb-3"
           >
@@ -145,9 +154,9 @@
             :game-result="state.gameResult"
             :player-sequence-length="state.playerSequence.length"
             :original-sequence-length="state.originalSequence.length"
-            @play="startTimer"
-            @reset="resetGame"
-            @result="checkResult"
+            @play="handlePlay"
+            @reset="handleReset"
+            @result="handleResult"
           />
         </div>
 
@@ -159,7 +168,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useGame } from "./composables/useGame";
 import SequenceDisplay from "./components/SequenceDisplay.vue";
 import NumberGrid from "./components/NumberGrid.vue";
@@ -168,6 +177,8 @@ import GameControls from "./components/GameControls.vue";
 import DifficultySelector from "./components/DifficultySelector.vue";
 import SoundControls from "./components/SoundControls.vue";
 import GameHistory from "./components/GameHistory.vue";
+
+const showSequenceSections = ref(false);
 
 const {
   state,
@@ -186,4 +197,23 @@ onMounted(() => {
   initializeGame();
   shuffleArray();
 });
+
+// Handler methods
+const handlePlay = () => {
+  showSequenceSections.value = true;
+  startTimer();
+};
+
+const handleResult = async () => {
+  checkResult();
+  setTimeout(() => {
+    showSequenceSections.value = true;
+  }, 100); // Small delay to ensure result is processed
+};
+
+const handleReset = () => {
+  resetGame();
+  shuffleArray();
+  showSequenceSections.value = false;
+};
 </script>
