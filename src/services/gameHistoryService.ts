@@ -1,3 +1,5 @@
+import { reactive } from 'vue';
+
 export interface GameHistoryEntry {
   id: string;
   date: Date;
@@ -11,9 +13,14 @@ export interface GameHistoryEntry {
 class GameHistoryService {
   private storageKey = 'mejikuhibiniu_game_history';
   private entries: GameHistoryEntry[] = [];
+  private listeners: Array<() => void> = [];
 
   constructor() {
     this.loadHistory();
+  }
+
+  private notifyListeners() {
+    this.listeners.forEach(listener => listener());
   }
 
   private loadHistory() {
@@ -25,10 +32,12 @@ class GameHistoryService {
           ...entry,
           date: new Date(entry.date)
         }));
+        this.notifyListeners(); // Notify if history was loaded
       }
     } catch (e) {
       console.error('Error loading game history:', e);
       this.entries = [];
+      this.notifyListeners(); // Ensure UI updates in case of error
     }
   }
 
@@ -53,6 +62,7 @@ class GameHistoryService {
     }
     
     this.saveHistory();
+    this.notifyListeners(); // Notify that history has changed
     return newEntry;
   }
 
@@ -76,6 +86,17 @@ class GameHistoryService {
   public clearHistory() {
     this.entries = [];
     this.saveHistory();
+    this.notifyListeners(); // Notify that history has changed
+  }
+
+  public subscribe(listener: () => void) {
+    this.listeners.push(listener);
+    return () => {
+      const index = this.listeners.indexOf(listener);
+      if (index > -1) {
+        this.listeners.splice(index, 1);
+      }
+    };
   }
 }
 
