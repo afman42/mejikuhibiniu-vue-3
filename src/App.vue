@@ -1,125 +1,181 @@
+<template>
+  <div
+    class="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-blue-50 flex flex-col justify-center items-center p-4 md:p-6"
+  >
+    <div
+      class="w-full max-w-4xl bg-white rounded-2xl shadow-xl border border-cyan-100 overflow-hidden"
+    >
+      <!-- Header section -->
+      <div class="bg-gradient-to-r from-cyan-400 to-blue-500 p-6">
+        <div class="flex justify-between items-center">
+          <h1 class="text-3xl md:text-4xl font-bold text-black drop-shadow-lg">
+            Mejikuhibiniu
+          </h1>
+          <SoundControls />
+        </div>
+
+        <p
+          class="text-center text-white/90 mt-3 text-lg font-medium drop-shadow"
+        >
+          <span
+            class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-orange-300"
+          >
+            Ingat urutan angka berwarna, lalu susun kembali dalam urutan yang
+            benar
+          </span>
+        </p>
+      </div>
+
+      <!-- Main content -->
+      <div class="p-6">
+        <!-- Difficulty selector -->
+        <div class="mb-6">
+          <DifficultySelector
+            :selected-difficulty="state.difficulty"
+            @difficulty-change="setDifficulty"
+          />
+        </div>
+
+        <!-- Game status -->
+        <div
+          class="mb-6 text-center py-4 rounded-xl bg-cyan-50 border border-cyan-200 shadow-sm"
+        >
+          <p
+            v-if="state.isMemorizing"
+            class="text-cyan-600 font-semibold text-lg"
+          >
+            🧠 Ingat urutan angka berwarna di atas! Waktu akan mulai ketika kamu
+            menekan Play.
+          </p>
+          <p
+            v-else-if="state.isPlaying && state.timerSecond > 0"
+            class="text-green-600 font-semibold text-lg"
+          >
+            ⏱️ Waktu mulai! Ingat baik-baik. ({{ state.timerSecond }}s)
+          </p>
+          <p
+            v-else-if="state.timerSecond === 0 && !state.gameResult.bool"
+            class="text-amber-600 font-semibold text-lg"
+          >
+            ✅ Waktu habis! Sekarang susun kembali angka dalam urutan yang
+            benar.
+          </p>
+          <p
+            v-else-if="state.gameResult.bool"
+            class="text-2xl font-bold py-2"
+            :class="
+              state.gameResult.result === 'Menang'
+                ? 'text-green-600'
+                : 'text-red-600'
+            "
+          >
+            {{ state.gameResult.result === "Menang" ? "🎉" : "😔" }}
+            {{ state.gameResult.result }}
+          </p>
+        </div>
+
+        <!-- Original sequence display for memorization -->
+        <div v-if="state.timerSecond > 0 || state.gameResult.bool" class="mb-8">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="text-xl font-bold text-gray-800">Urutan Asli:</h2>
+            <div
+              class="text-sm font-medium text-cyan-700 bg-cyan-100 px-3 py-1 rounded-full"
+            >
+              {{ state.originalSequence.length }} angka
+            </div>
+          </div>
+          <div class="flex justify-center">
+            <SequenceDisplay
+              :sequence="state.originalSequence"
+              :show-original-colors="
+                state.timerSecond > 0 || state.gameResult.bool
+              "
+            />
+          </div>
+        </div>
+
+        <!-- Shuffled number grid for selection -->
+        <div class="mb-8">
+          <h2 class="text-xl font-bold text-center text-gray-800 mb-3">
+            Pilih Angka:
+          </h2>
+          <div class="flex justify-center">
+            <NumberGrid
+              :numbers="state.displaySequence"
+              :disabled="
+                state.isMemorizing ||
+                (state.isPlaying && state.timerSecond > 0) ||
+                state.gameResult.bool
+              "
+              :selected-items="state.playerSequence.map((item) => item.name)"
+              :show-original-colors="
+                state.gameResult.bool ||
+                !state.isPlaying ||
+                state.timerSecond > 0
+              "
+              @select="selectNumber"
+            />
+          </div>
+        </div>
+
+        <!-- Player's sequence -->
+        <div class="mb-8">
+          <h2 class="text-xl font-bold text-center text-gray-800 mb-3">
+            Jawaban Anda:
+          </h2>
+          <div class="flex justify-center">
+            <PlayerSequence
+              :sequence="state.playerSequence"
+              :disabled="state.gameResult.bool"
+              :show-original-colors="state.gameResult.bool"
+              @remove="removeNumber"
+            />
+          </div>
+        </div>
+
+        <!-- Game controls -->
+        <div class="mb-8">
+          <GameControls
+            :timer="state.timerSecond"
+            :is-playing="state.isPlaying"
+            :game-result="state.gameResult"
+            :player-sequence-length="state.playerSequence.length"
+            :original-sequence-length="state.originalSequence.length"
+            @play="startTimer"
+            @reset="resetGame"
+            @result="checkResult"
+          />
+        </div>
+
+        <!-- Game history -->
+        <GameHistory />
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
-import { createInitialColorsRandom, IColorRandom } from "./data";
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
+import { useGame } from "./composables/useGame";
+import SequenceDisplay from "./components/SequenceDisplay.vue";
+import NumberGrid from "./components/NumberGrid.vue";
+import PlayerSequence from "./components/PlayerSequence.vue";
+import GameControls from "./components/GameControls.vue";
+import DifficultySelector from "./components/DifficultySelector.vue";
+import SoundControls from "./components/SoundControls.vue";
+import GameHistory from "./components/GameHistory.vue";
 
-// Game state
-const originalSequence = ref<IColorRandom[]>([]);
-const displaySequence = ref<IColorRandom[]>([]);
-const playerSequence = ref<IColorRandom[]>([]);
-const gameResult = ref<{ result: string; bool: boolean }>({
-  result: "",
-  bool: false,
-});
-const isMemorizing = ref<boolean>(true); // true means player is viewing the original sequence
-const isPlaying = ref<boolean>(false); // true means the game is active (timer running)
-const timerSecond = ref<number>(10);
-const timerId = ref<number | null>(null); // Store timer ID to be able to clear it
-
-// Initialize the game with a new sequence
-function initializeGame() {
-  originalSequence.value = createInitialColorsRandom();
-  displaySequence.value = [...originalSequence.value]; // Copy for shuffling
-  playerSequence.value = [];
-  gameResult.value = { result: "", bool: false };
-  isMemorizing.value = true;
-  isPlaying.value = false;
-  timerSecond.value = 10;
-}
-
-// Shuffle the display sequence
-function shuffleArray() {
-  displaySequence.value = [...originalSequence.value] // Create a copy to avoid modifying original
-    .map((item: IColorRandom) => ({ item, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ item }: { item: IColorRandom }) => item);
-}
-
-// Start the game timer
-function play() {
-  isPlaying.value = true;
-  isMemorizing.value = false;
-  
-  // Clear any existing timer
-  if (timerId.value) {
-    clearInterval(timerId.value);
-  }
-  
-  // Start new timer
-  timerId.value = window.setInterval(frame, 1000);
-  
-  function frame() {
-    if (timerSecond.value <= 0) {
-      timerSecond.value = 0;
-      if (timerId.value) {
-        clearInterval(timerId.value);
-        timerId.value = null;
-      }
-      // Don't change isMemorizing here - we want to allow interaction after timer ends
-    } else {
-      timerSecond.value--;
-    }
-  }
-}
-
-// Reset the game
-function reset() {
-  if (timerId.value) {
-    clearInterval(timerId.value);
-    timerId.value = null;
-  }
-  
-  initializeGame();
-  shuffleArray(); // Shuffle the sequence for the new game
-}
-
-// Check player's result
-function result() {
-  // Compare sequences properly - make sure both arrays have the same order and values
-  const isCorrect = originalSequence.value.length === playerSequence.value.length &&
-    originalSequence.value.every((item, index) => 
-      item.name === playerSequence.value[index].name &&
-      item.nbr === playerSequence.value[index].nbr &&
-      item.color === playerSequence.value[index].color
-    );
-  
-  if (isCorrect) {
-    gameResult.value.result = "Menang";
-  } else {
-    gameResult.value.result = "Kalah";
-  }
-  
-  gameResult.value.bool = true;
-  isMemorizing.value = false;
-  
-  // Stop the timer when result is shown
-  if (timerId.value) {
-    clearInterval(timerId.value);
-    timerId.value = null;
-  }
-}
-
-// Handle player clicking on a number
-function clickDiv(numberRandom: IColorRandom) {
-  if (isPlaying.value && timerSecond.value === 0 && !gameResult.value.bool) {
-    // Check if this item is already in the player's sequence
-    const isAlreadySelected = playerSequence.value
-      .some(item => item.name === numberRandom.name);
-    
-    if (!isAlreadySelected && playerSequence.value.length < originalSequence.value.length) {
-      playerSequence.value.push({ ...numberRandom }); // Add a copy of the item
-    }
-  }
-}
-
-// Remove an item from player's sequence
-function removeObjectInArray(name: string) {
-  if (gameResult.value.bool) {
-    return; // Don't allow changes after result is shown
-  }
-  playerSequence.value = playerSequence.value.filter(
-    (item: IColorRandom) => item.name !== name
-  );
-}
+const {
+  state,
+  initializeGame,
+  shuffleArray,
+  startTimer,
+  resetGame,
+  checkResult,
+  selectNumber,
+  removeNumber,
+  setDifficulty,
+} = useGame();
 
 // Initialize the game when component mounts
 onMounted(() => {
@@ -127,92 +183,3 @@ onMounted(() => {
   shuffleArray();
 });
 </script>
-
-<template>
-  <div class="min-h-screen flex flex-col justify-center items-center">
-    <h2>
-      <span
-        v-for="itemColor in originalSequence"
-        :class="itemColor.color"
-        :key="'original-' + itemColor.name"
-        >{{ itemColor.name }}</span
-      >
-    </h2>
-    <span class="mb-2"
-      >Urutkan angka warna
-      <span
-        v-for="itemColor in originalSequence"
-        :class="itemColor.color"
-        :key="'original-label-' + itemColor.name"
-        >{{ itemColor.name }}</span
-      >
-      dengan klik angkanya</span
-    >
-    <span v-if="gameResult.bool" class="mb-2 text-xl font-bold">{{ gameResult.result }}</span>
-    <div class="flex flex-row mb-2">
-      <div
-        class="mr-2 cursor-pointer text-2xl font-bold"
-        :class="[isMemorizing ? 'text-black' : item.color]"
-        :key="'display-' + item.name"
-        v-for="item in displaySequence"
-        @click="clickDiv(item)"
-      >
-        {{ item.nbr }}
-      </div>
-    </div>
-    <p class="mb-2" v-if="playerSequence.length">Jawaban Anda</p>
-    <div class="flex flex-row mb-2" v-if="playerSequence.length">
-      <div
-        class="mr-2 cursor-pointer text-2xl font-bold"
-        :class="[isMemorizing ? 'text-black' : item.color]"
-        :key="'player-' + item.name"
-        v-for="item in playerSequence"
-        @click="removeObjectInArray(item.name)"
-      >
-        {{ item.nbr }}
-      </div>
-    </div>
-    <transition name="no-item-opacity">
-      <div v-if="gameResult.bool">
-        <p style="text-align: center">Samakan</p>
-        <div class="flex flex-row mb-2">
-          <div
-            class="mr-2"
-            :class="item.color"
-            :key="'result-' + item.name"
-            v-for="item in originalSequence"
-          >
-            {{ item.nbr }}
-          </div>
-        </div>
-      </div>
-    </transition>
-    <div class="flex flex-row items-center">
-      <div class="mr-4 text-lg">
-        Waktu: {{ timerSecond == 0 ? timerSecond : timerSecond + "s" }}
-      </div>
-      <div class="flex space-x-2">
-        <button 
-          @click="play" 
-          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50" 
-          :disabled="isPlaying"
-        >
-          Play
-        </button>
-        <button 
-          @click="reset" 
-          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-        >
-          Reset
-        </button>
-        <button
-          v-if="playerSequence.length === originalSequence.length && !gameResult.bool"
-          @click="result"
-          class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          Result
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
