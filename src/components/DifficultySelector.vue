@@ -13,10 +13,11 @@
         :class="[
           'px-4 py-2 sm:px-6 sm:py-3 rounded-xl text-sm sm:text-base font-bold transition-all duration-300 flex flex-col items-center justify-center min-w-[100px] sm:min-w-[120px] h-auto',
           selectedDifficulty === key
-            ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-white shadow-lg transform scale-105'
+            ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-cyan-600 shadow-lg transform scale-105'
             : 'bg-white text-gray-800 hover:shadow-md hover:shadow-cyan-100',
         ]"
         @click="$emit('difficulty-change', key)"
+        :disabled="isPlaying || gameResult.bool"
         :aria-pressed="selectedDifficulty === key"
         :aria-label="`Pilih kesulitan ${level.name}`"
       >
@@ -39,6 +40,10 @@ import { GAME_CONFIG } from "../constants";
 
 interface Props {
   selectedDifficulty: keyof typeof GAME_CONFIG.DIFFICULTY_LEVELS;
+  isPlaying: boolean;
+  gameResult: {
+    bool: boolean;
+  };
 }
 
 interface Emits {

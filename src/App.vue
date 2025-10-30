@@ -25,6 +25,8 @@
         <div class="mb-4 sm:mb-6">
           <DifficultySelector
             :selected-difficulty="state.difficulty"
+            :is-playing="state.isPlaying"
+            :game-result="state.gameResult"
             @difficulty-change="setDifficulty"
           />
         </div>
