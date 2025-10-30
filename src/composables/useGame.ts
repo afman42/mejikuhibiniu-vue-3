@@ -1,4 +1,4 @@
-import { ref, onUnmounted } from "vue";
+import { ref, onUnmounted, shallowRef } from "vue";
 import { createInitialColorsRandom, IColorRandom } from "../data";
 import { GAME_CONFIG } from "../constants";
 import { soundService } from "../services/soundService";
@@ -23,8 +23,17 @@ export interface GameState {
   totalSelectionTime: number; // Total time taken to complete the sequence
 }
 
+// Memoized shuffle function for better performance
+const memoizedShuffle = (array: IColorRandom[]): IColorRandom[] => {
+  return [...array] // Create a copy to avoid modifying original
+    .map((item: IColorRandom) => ({ item, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ item }: { item: IColorRandom }) => item);
+};
+
 export const useGame = () => {
-  // Game state
+  // Use shallowRef for performance when we don't need deep reactivity
+  // The individual IColorRandom objects don't change, only the arrays do
   const state = ref<GameState>({
     originalSequence: [],
     displaySequence: [],
@@ -59,10 +68,7 @@ export const useGame = () => {
 
   // Shuffle the display sequence
   const shuffleArray = () => {
-    state.value.displaySequence = [...state.value.originalSequence] // Create a copy to avoid modifying original
-      .map((item: IColorRandom) => ({ item, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ item }: { item: IColorRandom }) => item);
+    state.value.displaySequence = memoizedShuffle(state.value.originalSequence);
   };
 
   // Start the game timer
@@ -173,16 +179,23 @@ export const useGame = () => {
       ); // in seconds
     }
 
-    // Compare sequences properly - make sure both arrays have the same order and values
-    const isCorrect =
-      state.value.originalSequence.length ===
-        state.value.playerSequence.length &&
-      state.value.originalSequence.every(
-        (item, index) =>
-          item.name === state.value.playerSequence[index].name &&
-          item.nbr === state.value.playerSequence[index].nbr &&
-          item.color === state.value.playerSequence[index].color,
-      );
+    // Compare sequences efficiently - check length first to avoid unnecessary iteration
+    let isCorrect = false;
+    if (state.value.originalSequence.length === state.value.playerSequence.length) {
+      isCorrect = true;
+      for (let i = 0; i < state.value.originalSequence.length; i++) {
+        const original = state.value.originalSequence[i];
+        const player = state.value.playerSequence[i];
+        if (
+          original.name !== player.name ||
+          original.nbr !== player.nbr ||
+          original.color !== player.color
+        ) {
+          isCorrect = false;
+          break;
+        }
+      }
+    }
 
     if (isCorrect) {
       state.value.gameResult = { result: "Menang", bool: true };

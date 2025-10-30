@@ -707,6 +707,39 @@ body {
   accent-color: #06b6d4;
 }
 
+/* Flip-list transition animations */
+.flip-list-move,
+.flip-list-enter-active,
+.flip-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.flip-list-enter-from,
+.flip-list-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.flip-list-leave-active {
+  position: absolute;
+}
+
+/* Fade-slide transition animations */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.4s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
 /* Additional responsive classes */
 .sm\:inline {
   display: inline;

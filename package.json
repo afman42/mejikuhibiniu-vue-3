@@ -11,17 +11,21 @@
   },
   "dependencies": {
     "@iconify/vue": "^5.0.0",
-    "vue": "^3.5.22"
+    "vue": "^3.5.22",
+    "vue3-touch-events": "^5.0.13"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^7.0.2",
+    "@vitejs/plugin-basic-ssl": "^2.1.0",
     "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/compiler-sfc": "^3.5.22",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.21",
     "jsdom": "^27.0.1",
     "postcss": "^8.5.6",
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
+    "vite-plugin-pwa": "^1.1.0",
     "vitest": "^4.0.5",
     "vue-tsc": "^3.1.2"
   }

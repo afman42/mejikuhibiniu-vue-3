@@ -1,18 +1,25 @@
 <template>
   <div class="sequence-display flex flex-row flex-wrap justify-center gap-1 sm:gap-2 mb-4" data-testid="sequence-display" role="list" aria-label="Urutan angka asli">
-    <div
-      v-for="item in sequence"
-      :key="item.name"
-      :class="[
-        'w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-white font-bold text-xs sm:text-sm',
-        showOriginalColors ? getColorClass(item.color) : 'bg-gray-400'
-      ]"
-      :data-testid="'sequence-item-' + item.name"
-      role="listitem"
-      :aria-label="`Angka ${item.nbr} berwarna ${showOriginalColors ? getColorName(item.color) : 'abu-abu'}`"
+    <transition-group 
+      name="flip-list"
+      tag="div" 
+      class="flex flex-row flex-wrap justify-center gap-1 sm:gap-2"
     >
-      {{ item.nbr }}
-    </div>
+      <div
+        v-for="item in sequence"
+        :key="item.name"
+        :class="[
+          'w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-white font-bold text-xs sm:text-sm transition-all duration-300 ease-in-out',
+          showOriginalColors ? getColorClass(item.color) : 'bg-gray-400'
+        ]"
+        :data-testid="'sequence-item-' + item.name"
+        role="listitem"
+        :aria-label="`Angka ${item.nbr} berwarna ${showOriginalColors ? getColorName(item.color) : 'abu-abu'}`"
+        v-memo="[item.name, item.nbr, item.color, showOriginalColors]"
+      >
+        {{ item.nbr }}
+      </div>
+    </transition-group>
   </div>
 </template>
 
